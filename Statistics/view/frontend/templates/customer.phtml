@@ -1,0 +1,141 @@
+<?php
+//   $myBlock = \Magento\Framework\App\ObjectManager::getInstance()->get('Products\Statistics\Block\Customer');
+//    $currentProduct = $myBlock->getCurrentProduct();
+	
+// 	if ($currentProduct = $myBlock->getCurrentProduct()) {
+// 	    $relatedProducts = $currentProduct->getRelatedProducts(); 
+// 	    if (!empty($relatedProducts)) {
+// 	        echo 'Related Products <br />';    
+// 	        foreach ($relatedProducts as $relatedProduct) {
+// 	            echo $relatedProduct->getSku() . '<br />';  
+// 	            echo $relatedProduct->getName(); //get name
+// 	            echo $relatedProduct->getPrice(); //get price
+// 	            echo $relatedProduct->getData(); //Show all attributes      
+// 	        }
+// 	    }    
+	   
+// } 
+ /*
+\Magento\Catalog\Model\Product::getRelatedProducts();
+ */
+/* start new */
+    // $getAllProduct = $block->getAllProduct();
+ //    var_dump("1---------------thana*----------------1");
+	// foreach($getAllProduct as $key=>$product) {
+	// var_dump($product->getData());
+	// var_dump("key : ".$key);
+	// var_dump($product->getSku());
+	// var_dump($product->getEntityId());
+	// var_dump($product->getName());
+	// }
+ //    var_dump("1---------------thana*----------------1") ;
+	// var_dump($block->getCategoriesForProduct());
+	// var_dump( $block->getRelatedProduct()); 
+
+	/* end new */
+	/* get product data -- true */
+	?>
+	<div><?php
+echo $block->getAllProducts();
+	?></div>
+	<table>
+		 <caption>Products</caption>
+		<thead>
+			<tr>
+				<td>ID</td>
+				<td>Name</td>
+				<td>SKU</td>
+				<td>Image</td>
+				<td>View related product</td>
+				<td style="width: 200px;">Recommendation</td>
+			</tr>
+		</thead>
+		<tbody>
+			<?php 
+        
+	    $imageBlock =  $block->getLayout()->createBlock('Magento\Catalog\Block\Product\ListProduct');
+
+		$productCollection = $block->getProductCollection();
+    	foreach ($productCollection as $product) {
+     	$product_entity = $product->getData();
+     	   $related = $product->getRelatedProductIds();
+     	var_dump($related);// after that connect related id into product id then print it's attribute
+
+ 
+			?>
+			<tr class="selected">
+			<form method="post" class="form_height">
+			<td><?php echo $product_entity['entity_id']; ?></td>
+			<td><?php echo $product_entity['name']; ?></td>
+			<td><?php echo  $product_entity['sku']; ?></td>
+			<td><?php
+		$productImage = $imageBlock->getImage($product, 'category_page_grid');  /* $product pass product object here */
+			?>
+			<a href="<?php echo $product->getProductUrl(); ?>">product image</a> 
+			 <!-- <a href="<?php //echo $product->getProductUrl(); ?>"><?php //echo $productImage->toHtml();  ?></a>  -->
+
+				<input type="hidden" name="product_id" value="<?php echo  $product_entity['entity_id']; ?>">
+				<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+
+$customerSession = $objectManager->create("Magento\Customer\Model\Session");
+
+if($customerSession->isLoggedIn()){
+	?>
+<input type="hidden" name="customer_id" value="<?php echo $customerSession->getCustomerId(); ?>">
+	<?php
+  
+}
+
+				?>
+			</td>
+			<td>
+
+				<a href="#"><?php echo "Related products";  ?></a>
+			</td>
+			<td><input type="text" name="recommendation" required="required" style="width: 147px;"><span><input type="submit" name="submit" value="save" style="margin-left: 5px;" ></span></td>
+			</form>
+		</tr>
+			<?php
+													}
+			?>
+		</tbody>
+	</table>
+<!-- start ajax request -->
+
+<script>
+require(['jquery'],function(){
+    jQuery(document).ready(function() {
+        // jQuery(".form_height").submit(function(){
+
+ jQuery('tbody tr input[name="submit"] ').click(function () {
+    jQuery('.selected').removeClass('selected');
+    jQuery(this).addClass("selected");
+    alert(jQuery('input[name="recommendation"]',this).val());
+    alert(jQuery('input[name="recommendation"]',this).val());
+
+            var recommendationValue = jQuery('input[name="recommendation"]',this).val();
+            var product_id = jQuery('input[name="product_id"]',this).val();
+            var customer_id = jQuery('input[name="customer_id"]',this).val();
+
+
+            var url = "<?php echo $block->getBaseUrl().'statistics/Result/Result/' ?>";
+            jQuery.ajax({
+            url: url,
+            type: "POST",
+            data: {recommendation:recommendationValue,product_id:product_id,customer_id:customer_id},
+            showLoader: true,
+            cache: false,
+            success: function(response){
+                console.log(response.output);
+            }
+        });
+        return false;
+        });
+    });
+});
+</script>
+<!-- end ajax request -->
+
+
+
