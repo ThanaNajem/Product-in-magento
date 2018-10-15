@@ -17,32 +17,16 @@ class Index extends \Magento\Framework\App\Action\Action
       /**
      * Statistics Index, shows a list of recent Statistics products.
      *
-     * @return \Magento\Framework\View\Result\PageFactory
+     * @return statistics/Index/Customer
      */
     public function execute()
     {
 
-        $resultPage = $this->resultPageFactory->create();
+        // $resultPage = $this->resultPageFactory->create();
 
-        // $resultPage->getConfig()->getTitle()->prepend(__('Statistics products'));
-
-        $customerSession = $this->_objectManager->get('Magento\Customer\Model\Session');
-
-        if($customerSession->isLoggedIn()) 
-        {
-
-           // customer login action
-             $resultPage->getConfig()->getTitle()->prepend(__('Statistics products - customer login'));
-             
-        $this->registry->register('current_product', 'this is a test!');
-              return $this->_redirect('statistics/index/customer');
-        }
-        else
-        {
-             $resultPage->getConfig()->getTitle()->prepend(__('Statistics products - guest login'));
-              return $this->_redirect('statistics/index/guest');
-        }
-        return $resultPage;
+        return $this->_redirect('statistics/Index/Customer');
+       
+        // return $resultPage;
         
     }
 }

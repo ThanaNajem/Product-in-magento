@@ -22,14 +22,8 @@ class InstallData implements InstallDataInterface
     {
         $installer = $setup;
         $installer->startSetup();
+        $sampleTemplates = ['recommandation' => 'please put latest technical phone', 'recommandation' => 'please put latest technical phone', 'recommandation' => 'please put latest technical phone'];
         /** Add root category */
-        $sampleTemplates = [
-            'recommandation' => 'please put latest technical phone',
-            'recommandation' => 'please put latest technical phone',
-            'recommandation' => 'please put latest technical phone',
-            
-          
-        ];
         $setup->getConnection()->insert($setup->getTable('recommandation'), $sampleTemplates);
         $installer->endSetup();
     }

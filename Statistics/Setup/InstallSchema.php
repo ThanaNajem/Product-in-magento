@@ -11,7 +11,6 @@ class InstallSchema implements InstallSchemaInterface {
  
     public function install( SchemaSetupInterface $setup, ModuleContextInterface $context ) {
         $installer = $setup;
- 
         $installer->startSetup();
  
         /**
@@ -78,12 +77,6 @@ class InstallSchema implements InstallSchemaInterface {
             ;
         
         $connection->createTable( $table );
-        
         $installer->endSetup();
     }
 }
-
-
-
-
- 

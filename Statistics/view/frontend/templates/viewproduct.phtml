@@ -1,0 +1,26 @@
+<?php
+
+?>
+<div>
+   <div style="width: 50%;display: inline-block; float: left;color: blue;">
+                          <?php                   
+                                 if (strlen( $block->getImageFromProductId($block->getProductId()))!=0): ?>
+                                     <img src="<?php echo $this->getMediaUrl() . "catalog/product/" . $block->getImageFromProductId($block->getProductId()); ?>" > 
+                           <?php else: 
+                                    echo "not found";
+                                endif;
+                           ?>
+
+   </div>
+   <div style="width: 50%;display: inline-block;color: black;">
+      <ul>
+         <!-- <li><?php //echo $block->getFixedProduct()->getProductUrl(); ?></li> -->
+         <li>ProductID: <?php echo  $block->getFixedProduct()->getEntityId();  ?></li>
+         <li>Name: <?php echo  $block->getFixedProduct()->getName();  ?></li>
+         <li>Sku: <?php echo  $block->getFixedProduct()->getSku();  ?></li>
+         <li>Price: <?php echo  $block->getFixedProduct()->getPrice()."$";  ?></li>
+
+         <li>Category name: <?php echo $block->getCategoryFromProductId($block->getProductId()); ?></li>
+      </ul>
+   </div>
+</div>

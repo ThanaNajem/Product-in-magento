@@ -8,64 +8,81 @@ use Magento\Framework\Controller\Result\JsonFactory;
 
 class Result extends \Magento\Framework\App\Action\Action
 {
-
-     /**
+    
+    /**
      * @var Magento\Framework\View\Result\PageFactory
      */
     protected $resultPageFactory;
-
-    protected $resultJsonFactory; 
-
+    /**
+     * @var \Magento\Framework\Controller\Result\JsonFactory
+     */
+    protected $resultJsonFactory;
+    
+    protected $crudObj;
+    
     /**
      * @param Context     $context
      * @param PageFactory $resultPageFactory
      */
-    public function __construct(
-        Context $context,
-        PageFactory $resultPageFactory,
-        JsonFactory $resultJsonFactory
-        )
+    public function __construct(Context $context, PageFactory $resultPageFactory, \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory, \Products\Statistics\Model\Recommendation $crudObj)
     {
-
+        
         $this->resultPageFactory = $resultPageFactory;
-        $this->resultJsonFactory = $resultJsonFactory; 
+        $this->resultJsonFactory = $resultJsonFactory;
+        $this->crudObj           = $crudObj;
         return parent::__construct($context);
     }
-
-
+    
+    
     public function execute()
     {
-        // $recommendation = $this->getRequest()->getParam('recommendation'); 
-        $result = $this->resultJsonFactory->create();
-        $resultPage = $this->resultPageFactory->create();
-         /* start save database code */
-
-        // $recommendation = $this->getRequest()->getParam('recommendation');
-        $post = $this->getRequest()->getPostValue();
-        $recommendation = $post['recommendation'];
-        $product_id = $post['product_id'];
-        $customer_id = $post['customer_id'];
-
-        $crudObj = $this->_objectManager->create('Products\Statistics\Model\Recommendation');
         
-
-        $crudObj->setData('recommendation',$recommendation);
-        $crudObj->setData('product_id_index',$product_id);
-        $crudObj->setData('sender_index',$customer_id);
-
-        $crudObj->save();
-         /* end save database code */
-         
-        $block = $resultPage->getLayout()
-                ->createBlock('Products\Statistics\Block\Statistics')
-                ->setTemplate('Products_Statistics::result.phtml')
-                ->setData('recommendation',$recommendation)
-                // ->setData('product_id_index',$product_id)
-                // ->setData('sender_index',$customer_id)
-
-                ->toHtml();
-
-        $result->setData(['output' => $block]);
-        return $result;
-    } 
+        // $resultPage = $this->resultPageFactory->create(); 
+        /** @var \Magento\Framework\Controller\Result\Json $resultJson */
+        
+        /* get ajax's request data*/
+        $recommendation = $this->getRequest()->getParam('recommendation');
+        $product_id     = $this->getRequest()->getParam('product_id');
+        $customer_id    = $this->getRequest()->getParam('customer_id');
+        /* check if ajax's request data isn't empty */
+        if (!empty($recommendation) && !empty($product_id) && !empty($customer_id)) {
+            
+            // $crudObj = $this->_objectManager->create('Products\Statistics\Model\Recommendation');
+            return $this->saveRecommendationIntoDatabaseRecord($recommendation, $product_id, $customer_id);
+            
+        }
+        
+        
+    }
+    
+    public function saveRecommendationIntoDatabaseRecord($recommendation, $product_id, $customer_id)
+    {
+        try {
+            $resultJson = $this->resultJsonFactory->create();
+            $response   = array();
+            $this->crudObj->setData('recommandation', $recommendation);
+            $this->crudObj->setData('product_id_index', $product_id);
+            $this->crudObj->setData('sender_index', $customer_id);
+            
+            
+            if ($this->crudObj->save()) {
+                $response = array(
+                    "status" => "success"
+                );
+            } else {
+                
+                $response = array(
+                    "status" => "fail"
+                );
+            }
+            
+            $resultJson->setData($response);
+        }
+        catch (\Exception $e) {
+            
+            $this->logger->critical($e->getMessage());
+            
+        }
+        return $resultJson;
+    }
 }
